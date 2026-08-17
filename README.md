@@ -100,7 +100,18 @@ Deux détails qui ont coûté du temps :
   dans le même batch Livewire et incrémentent de 2 d'un coup. D'où le jeton de
   génération dans `skip()`.
 
-Le Turnstile, lui, n'est jamais résolu et ne bloque rien.
+- Le compteur n'est pas le dernier verrou. Une fois à 100 %, le composant se réduit
+  à un widget Cloudflare Turnstile : le serveur ne livre la source vidéo qu'une fois
+  ce jeton validé. En cliquant à la main on met une trentaine de secondes et le
+  Turnstile a le temps de répondre, alors que le script boucle en deux secondes.
+  Si on incrémente avant, le re-render Livewire détruit le widget et le player
+  n'arrive jamais : le compteur disparaît, mais l'écran reste sur l'image de
+  couverture. D'où l'attente explicite de `cf_turnstile_response` avant la première
+  incrémentation.
+
+Piège de test au passage : une iframe technique de 0×0 pointant vers l'URL courante
+traîne en permanence sur la page. Un `querySelector('iframe[src]')` la trouve et
+laisse croire que le player est monté. Il faut vérifier les dimensions.
 
 ## Développement
 

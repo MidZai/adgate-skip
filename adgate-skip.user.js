@@ -35,9 +35,10 @@
     auto: true,
     blockPopups: true,
     autoPlay: true,
-    delay: 450,        // entre deux incréments
-    maxCalls: 15,      // garde-fou, 5 suffisent normalement
-    timeout: 25000,    // attente max du composant
+    delay: 450,          // entre deux incréments
+    maxCalls: 15,        // garde-fou, 5 suffisent normalement
+    timeout: 25000,      // attente max du composant
+    turnstileWait: 30000, // attente max du Turnstile avant d'incrémenter
   };
 
   const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -93,12 +94,30 @@
     try { return window.Livewire.find(id) || null; } catch { return null; }
   }
 
-  function field(w, key) {
+  function raw(w, key) {
     if (!w) return null;
-    try {
-      const v = typeof w.get === 'function' ? w.get(key) : w[key];
-      return v == null ? null : Number(v);
-    } catch { return null; }   // le proxy jette si le composant vient d'être démonté
+    try { return typeof w.get === 'function' ? w.get(key) : w[key]; }
+    catch { return null; }     // le proxy jette si le composant vient d'être démonté
+  }
+
+  function field(w, key) {
+    const v = raw(w, key);
+    return v == null ? null : Number(v);
+  }
+
+  // Le serveur ne livre la source vidéo qu'une fois le Turnstile validé. Si on
+  // incrémente avant, le compteur tombe bien à 100 % mais le re-render Livewire
+  // détruit le widget Cloudflare, qui ne se remonte jamais : plus de gate, et
+  // pas de player non plus. En cliquant à la main on met 30 s, le Turnstile a
+  // le temps de répondre — le script, lui, doit l'attendre explicitement.
+  async function waitTurnstile() {
+    if (raw(wire(), 'cf_turnstile_response')) return true;
+    const until = Date.now() + config.turnstileWait;
+    while (Date.now() < until) {
+      await sleep(500);
+      if (raw(wire(), 'cf_turnstile_response')) return true;
+    }
+    return false;
   }
 
   function progress(w) {
@@ -123,7 +142,11 @@
   function unlocked() {
     if (!document.body) return false;
     if (/ZONE PUBLICITAIRE/i.test(document.body.innerHTML)) return false;
-    return !!document.querySelector('video, iframe[src]');
+    // Une iframe technique de 0x0 traîne en permanence sur la page et pointe
+    // vers l'URL courante : seul un média réellement dimensionné prouve que le
+    // player est monté.
+    return [...document.querySelectorAll('video, iframe')]
+      .some(e => e.clientWidth > 200 && e.clientHeight > 100);
   }
 
   async function waitFor(fn, timeout) {
@@ -161,6 +184,11 @@
 
       log(`départ (${source}) à ${progress(w) ?? '?'}%`);
 
+      badge.set('busy', 'Vérification Cloudflare…');
+      const verified = await waitTurnstile();
+      if (mine !== gen) return;
+      log(verified ? 'Turnstile validé' : 'Turnstile sans réponse, on tente quand même');
+
       for (let i = 0; i < config.maxCalls; i++) {
         if (mine !== gen) return;       // navigation entre-temps
 
@@ -185,9 +213,17 @@
 
       const pct = progress(wire()) ?? 0;
       if (pct >= 100 || unlocked()) {
-        badge.set('done', 'Pubs passées');
-        log('lecteur débloqué');
-        if (config.autoPlay) play();
+        if (config.autoPlay) await play();
+
+        if (!verified && !unlocked()) {
+          // Compteur vidé mais Cloudflare n'a jamais répondu : le serveur ne
+          // livrera pas la vidéo. Recharger remonte un widget Turnstile neuf.
+          badge.set('error', 'Cloudflare bloqué, recharge');
+          log('compteur à 100% mais Turnstile non validé : recharge la page');
+        } else {
+          badge.set('done', 'Pubs passées');
+          log('lecteur débloqué');
+        }
       } else {
         badge.set('error', `Bloqué à ${Math.round(pct)}%`);
         log(`arrêt à ${pct}%, rafraîchis la page pour remettre le compteur à zéro`);
@@ -268,9 +304,17 @@
 
   // On ne devine pas l'URL : on attend simplement que le composant existe,
   // ce qui couvre aussi bien les épisodes que les films.
+  let lastUrl = null;
+
   function start() {
     badge.mount();
     if (!config.auto) return;
+
+    // Au chargement, DOMContentLoaded et livewire:navigated tirent tous les
+    // deux. Sans ce garde, la seconde séquence annule la première en plein
+    // milieu de l'attente du Turnstile et repart pour un tour complet.
+    if (location.href === lastUrl && busy) return;
+    lastUrl = location.href;
     waitFor(wire, config.timeout).then(w => {
       if (!w) return;
       if ((progress(w) ?? 0) >= 100 || unlocked()) return;
