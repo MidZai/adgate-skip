@@ -119,8 +119,33 @@
     </div>
   </div>
 
-  <div class="step">
+  <div class="step" id="toggle-step" hidden>
     <div class="n">2</div>
+    <div class="body">
+      <h2>Autoriser les scripts utilisateur</h2>
+      <p>
+        Chrome bloque les gestionnaires de scripts tant que cette option n'est pas
+        cochée, sans le signaler : le script s'affiche comme installé et actif, mais
+        ne s'exécute jamais. Impossible de l'activer à ta place, Chrome l'interdit
+        justement pour empêcher qu'une page le fasse.
+      </p>
+      <p>
+        Colle cette adresse dans la barre du navigateur, puis active
+        <b>Autoriser les scripts utilisateur</b> :
+      </p>
+      <p>
+        <code id="ext-url">chrome://extensions/?id=jinjaccalgkegednnccohejagnlnfdag</code>
+        <button class="btn" id="copy-url" style="margin-left:.5rem;cursor:pointer">Copier</button>
+      </p>
+      <div class="alt">
+        Ensuite <b>redémarre Chrome</b>. Violentmonkey ne réenregistre ses scripts
+        qu'au démarrage : recharger la page ne suffit pas.
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="n" id="n-install">2</div>
     <div class="body">
       <h2>Installer le script</h2>
       <p>L'écran de confirmation du gestionnaire s'ouvre, il n'y a qu'à valider.
@@ -136,7 +161,7 @@
   </div>
 
   <div class="step">
-    <div class="n">3</div>
+    <div class="n" id="n-open">3</div>
     <div class="body">
       <h2>Ouvrir un épisode</h2>
       <p style="margin-bottom:0">
@@ -255,6 +280,34 @@
 
     alt.innerHTML = 'Autres navigateurs : <a href="https://violentmonkey.github.io/get-it/"'
       + ' target="_blank" rel="noopener">violentmonkey.github.io</a>';
+
+    // Seul Chrome (et ses dérivés) exige d'autoriser les scripts utilisateur.
+    // Firefox n'a pas ce verrou, on ne montre pas l'étape inutilement.
+    if (key === 'chrome' || key === 'edge') {
+      var scheme = key === 'edge' ? 'edge' : 'chrome';
+      var id = stores[key][0].split('/').pop();
+      var url = scheme + '://extensions/?id=' + id;
+
+      document.getElementById('ext-url').textContent = url;
+      document.getElementById('toggle-step').hidden = false;
+      document.getElementById('n-install').textContent = '3';
+      document.getElementById('n-open').textContent = '4';
+
+      var copy = document.getElementById('copy-url');
+      copy.addEventListener('click', function () {
+        navigator.clipboard.writeText(url).then(function () {
+          copy.textContent = 'Copié';
+          setTimeout(function () { copy.textContent = 'Copier'; }, 2000);
+        }, function () {
+          // clipboard refusé (page non sécurisée) : on sélectionne le texte
+          var r = document.createRange();
+          r.selectNode(document.getElementById('ext-url'));
+          getSelection().removeAllRanges();
+          getSelection().addRange(r);
+          copy.textContent = 'Ctrl+C';
+        });
+      });
+    }
   })();
 </script>
 <script src="bookmarklet.js"></script>
