@@ -147,6 +147,30 @@
     </div>
   </div>
 
+  <details id="fallback">
+    <summary>Le script est installé mais rien ne se passe</summary>
+    <p>
+      Sur Chrome, un gestionnaire de scripts en Manifest V3 n'injecte rien tant que
+      l'option <b>Autoriser les scripts utilisateur</b> n'est pas activée dans
+      <code>chrome://extensions</code> → Détails de Violentmonkey. Après l'avoir
+      activée, il faut <b>recharger l'extension</b> (ou redémarrer Chrome), pas
+      seulement la page : Violentmonkey ne réenregistre ses scripts qu'au démarrage.
+    </p>
+    <p>
+      Si ça résiste, voici la version sans extension. Fais apparaître la barre de
+      favoris (<kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>B</kbd>), puis glisse ce lien
+      dedans. Sur une page d'épisode, un clic dessus lance le skip.
+    </p>
+    <p>
+      <a class="btn" id="bookmarklet" href="#" onclick="return false"
+         draggable="true">↧ AdGate Skip</a>
+    </p>
+    <p style="margin-bottom:0">
+      Ça ne dépend d'aucune extension ni d'aucun réglage, et ça marche sur tous les
+      navigateurs. En contrepartie il faut cliquer le favori à chaque épisode.
+    </p>
+  </details>
+
   <details>
     <summary>Comment ça marche</summary>
     <p>
@@ -233,5 +257,6 @@
       + ' target="_blank" rel="noopener">violentmonkey.github.io</a>';
   })();
 </script>
+<script src="bookmarklet.js"></script>
 </body>
 </html>

@@ -25,8 +25,11 @@
 
   // Le player est réinjecté dans une iframe de même origine une fois le gate
   // passé. Sans ça le script repart en boucle dedans.
-  if (window.top !== window.self || window.__adgateSkip) return;
-  window.__adgateSkip = true;
+  if (window.top !== window.self) return;
+
+  // Déjà chargé : on relance au lieu de sortir, pour que le bookmarklet reste
+  // utile au deuxième clic.
+  if (window.__adgateSkip) { window.__adgateSkip('relance'); return; }
 
   const config = {
     auto: true,
@@ -275,6 +278,7 @@
     });
   }
 
+  window.__adgateSkip = skip;
   muteWindowOpen();
 
   if (document.readyState === 'loading') {

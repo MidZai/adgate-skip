@@ -20,6 +20,25 @@ ensuite automatiquement via `@updateURL`.
 Si le clic affiche du code source au lieu d'une confirmation, c'est que le
 gestionnaire n'est pas installé.
 
+### Installé mais rien ne se passe
+
+Sur Chrome, un gestionnaire en Manifest V3 n'injecte rien tant que l'option
+**Autoriser les scripts utilisateur** n'est pas activée dans `chrome://extensions`
+→ Détails de Violentmonkey. Après l'avoir cochée il faut **recharger l'extension**,
+ou redémarrer Chrome : Violentmonkey ne réenregistre ses scripts qu'au démarrage,
+recharger la page ne suffit pas.
+
+Pour savoir si le script tourne, le témoin est le bouton **Skip pubs** en bas à
+droite : il apparaît dès l'exécution, même si la suite échoue. Pas de bouton = le
+script n'est jamais injecté, et le problème est côté gestionnaire, pas côté script.
+
+### Version bookmarklet
+
+Si aucun gestionnaire ne veut coopérer, la [page d'installation](https://midzai.github.io/adgate-skip/)
+propose un lien à glisser dans la barre de favoris. Un clic dessus sur une page
+d'épisode lance le skip. Aucune extension, aucun réglage, tous navigateurs. En
+contrepartie il faut cliquer à chaque épisode.
+
 ### Sans gestionnaire de userscripts
 
 Le dossier `extension/` est une extension Manifest V3 utilisable telle quelle :

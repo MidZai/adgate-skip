@@ -33,4 +33,17 @@ EOF
 
 cp src/core.js extension/core.js
 
+# Version bookmarklet, pour les navigateurs où aucun gestionnaire de scripts
+# ne veut fonctionner. La page d'install pose le lien à glisser dans la barre
+# de favoris.
+node -e '
+const fs = require("fs");
+const code = fs.readFileSync("src/core.js", "utf8");
+const url = "javascript:" + encodeURIComponent(code + "\nvoid 0;");
+fs.writeFileSync("docs/bookmarklet.js",
+  "// généré par build.sh, ne pas éditer\n" +
+  "document.getElementById(\"bookmarklet\").href = " + JSON.stringify(url) + ";\n");
+console.log("docs/bookmarklet.js     " + Math.round(url.length / 1024) + " Ko");
+'
+
 echo "adgate-skip.user.js  v$VERSION  ($(wc -l < adgate-skip.user.js | tr -d ' ') lignes)"
