@@ -26,40 +26,43 @@
   }
   main { max-width: 40rem; margin: 0 auto }
 
-  h1 {
-    margin: 0 0 .4rem;
-    font-size: clamp(1.9rem, 6vw, 2.6rem);
-    letter-spacing: -.02em;
-  }
-  .lede { margin: 0 0 3rem; color: var(--muted); font-size: 1.05rem }
+  h1 { margin: 0 0 .4rem; font-size: clamp(1.9rem, 6vw, 2.6rem); letter-spacing: -.02em }
+  .lede { margin: 0 0 2rem; color: var(--muted); font-size: 1.05rem }
   .lede b { color: var(--fg); font-weight: 600 }
 
+  .picker { display: flex; gap: .5rem; margin: 0 0 .6rem; flex-wrap: wrap }
+  .picker button {
+    flex: 1 1 12rem;
+    padding: .8rem 1rem;
+    border: 1px solid var(--line); border-radius: 10px;
+    background: var(--panel); color: var(--muted);
+    font: 600 .93rem system-ui, sans-serif; cursor: pointer;
+    transition: border-color .15s, color .15s, background .15s;
+  }
+  .picker button:hover { color: var(--fg); border-color: #3a3a40 }
+  .picker button[aria-selected="true"] {
+    background: #1d1d21; color: var(--fg); border-color: var(--accent);
+  }
+  .picker-note { margin: 0 0 2.5rem; font-size: .82rem; color: var(--muted) }
+
   .step {
-    display: grid;
-    grid-template-columns: 2rem 1fr;
-    gap: 0 1rem;
-    padding: 1.4rem 0;
-    border-top: 1px solid var(--line);
+    display: grid; grid-template-columns: 2rem 1fr; gap: 0 1rem;
+    padding: 1.4rem 0; border-top: 1px solid var(--line);
   }
   .step > .n {
-    width: 2rem; height: 2rem;
-    display: grid; place-items: center;
+    width: 2rem; height: 2rem; display: grid; place-items: center;
     border: 1px solid var(--line); border-radius: 50%;
     font-size: .85rem; color: var(--muted);
   }
   .step h2 { margin: .25rem 0 .35rem; font-size: 1.05rem; font-weight: 600 }
   .step p { margin: 0 0 1rem; color: var(--muted); font-size: .93rem }
   .step .body { min-width: 0 }
+  [hidden] { display: none !important }
 
   .btn {
-    display: inline-block;
-    padding: .7rem 1.3rem;
-    border-radius: 8px;
-    border: 1px solid var(--line);
-    background: var(--panel);
-    color: var(--fg);
-    font-size: .93rem; font-weight: 600;
-    text-decoration: none;
+    display: inline-block; padding: .7rem 1.3rem; border-radius: 8px;
+    border: 1px solid var(--line); background: var(--panel); color: var(--fg);
+    font: 600 .93rem system-ui, sans-serif; text-decoration: none; cursor: pointer;
     transition: border-color .15s, background .15s;
   }
   .btn:hover { border-color: #3a3a40; background: #1a1a1d }
@@ -69,11 +72,7 @@
   .alt { margin-top: .8rem; font-size: .82rem; color: var(--muted) }
   .alt a { color: var(--muted) }
 
-  details {
-    margin-top: 2.5rem;
-    border-top: 1px solid var(--line);
-    padding-top: 1.4rem;
-  }
+  details { margin-top: 2.5rem; border-top: 1px solid var(--line); padding-top: 1.4rem }
   summary { cursor: pointer; font-weight: 600; font-size: .95rem }
   details p, details li { color: var(--muted); font-size: .9rem }
   details ul { padding-left: 1.1rem }
@@ -81,17 +80,15 @@
     font: .85em ui-monospace, SFMono-Regular, Menlo, monospace;
     background: var(--panel); border: 1px solid var(--line);
     padding: .12em .4em; border-radius: 4px;
+    overflow-wrap: anywhere;
   }
   kbd {
-    font: .8em ui-monospace, monospace;
-    background: var(--panel); border: 1px solid var(--line);
-    border-bottom-width: 2px;
+    font: .8em ui-monospace, monospace; background: var(--panel);
+    border: 1px solid var(--line); border-bottom-width: 2px;
     padding: .15em .45em; border-radius: 4px;
   }
-
   footer {
-    margin-top: 3rem; padding-top: 1.4rem;
-    border-top: 1px solid var(--line);
+    margin-top: 3rem; padding-top: 1.4rem; border-top: 1px solid var(--line);
     font-size: .85rem; color: var(--muted);
   }
   a { color: var(--accent) }
@@ -106,93 +103,98 @@
     seul, sans ouvrir la moindre pub.
   </p>
 
+  <div class="picker" role="tablist" aria-label="Navigateur">
+    <button role="tab" data-browser="chrome" aria-selected="false">Chrome · Edge · Brave</button>
+    <button role="tab" data-browser="firefox" aria-selected="false">Firefox</button>
+  </div>
+  <p class="picker-note" id="picker-note"></p>
+
   <div class="step">
     <div class="n">1</div>
     <div class="body">
       <h2>Installer le gestionnaire de scripts</h2>
-      <p id="mgr-desc">Violentmonkey est gratuit, open source, et sert à exécuter le script.
-        Si tu as déjà Violentmonkey ou Tampermonkey, passe directement à l'étape&nbsp;2.</p>
-      <a class="btn" id="mgr-link" href="https://violentmonkey.github.io/get-it/" target="_blank" rel="noopener">
-        Installer Violentmonkey
-      </a>
-      <div class="alt" id="mgr-alt"></div>
+      <p>Violentmonkey est gratuit et open source, c'est lui qui exécute le script.
+        Si tu as déjà Violentmonkey ou Tampermonkey, passe à l'étape suivante.</p>
+      <a class="btn" id="mgr-link" href="https://violentmonkey.github.io/get-it/"
+         target="_blank" rel="noopener">Installer Violentmonkey</a>
     </div>
   </div>
 
-  <div class="step" id="toggle-step" hidden>
+  <div class="step" data-only="chrome">
     <div class="n">2</div>
     <div class="body">
       <h2>Autoriser les scripts utilisateur</h2>
       <p>
         Chrome bloque les gestionnaires de scripts tant que cette option n'est pas
-        cochée, sans le signaler : le script s'affiche comme installé et actif, mais
-        ne s'exécute jamais. Impossible de l'activer à ta place, Chrome l'interdit
-        justement pour empêcher qu'une page le fasse.
+        cochée, et sans rien signaler : le script apparaît installé et actif, mais ne
+        s'exécute jamais. Impossible de l'activer à ta place, c'est exactement ce que
+        cette protection empêche.
       </p>
-      <p>
-        Colle cette adresse dans la barre du navigateur, puis active
-        <b>Autoriser les scripts utilisateur</b> :
-      </p>
+      <p>Colle cette adresse dans la barre du navigateur, puis active
+        <b>Autoriser les scripts utilisateur</b> :</p>
       <p>
         <code id="ext-url">chrome://extensions/?id=jinjaccalgkegednnccohejagnlnfdag</code>
-        <button class="btn" id="copy-url" style="margin-left:.5rem;cursor:pointer">Copier</button>
+        <button class="btn" id="copy-url" style="margin-left:.5rem">Copier</button>
       </p>
       <div class="alt">
         Ensuite <b>redémarre Chrome</b>. Violentmonkey ne réenregistre ses scripts
-        qu'au démarrage : recharger la page ne suffit pas.
+        qu'au démarrage, recharger la page ne suffit pas.
       </div>
     </div>
   </div>
 
   <div class="step">
-    <div class="n" id="n-install">2</div>
+    <div class="n">3</div>
     <div class="body">
       <h2>Installer le script</h2>
-      <p>L'écran de confirmation du gestionnaire s'ouvre, il n'y a qu'à valider.
-        Les mises à jour se feront ensuite toutes seules.</p>
-      <a class="btn primary" href="https://raw.githubusercontent.com/MidZai/adgate-skip/main/adgate-skip.user.js">
+      <p>Violentmonkey ouvre un écran de confirmation, il reste à valider. C'est un
+        écran de consentement : aucune page web ne peut le valider à ta place. Les
+        mises à jour, elles, se feront ensuite toutes seules.</p>
+      <a class="btn primary"
+         href="https://raw.githubusercontent.com/MidZai/adgate-skip/main/adgate-skip.user.js">
         Installer AdGate Skip
       </a>
       <div class="alt">
-        Rien ne se passe au clic&nbsp;? C'est que l'étape 1 n'est pas faite : le
-        navigateur affiche alors le code source au lieu de l'écran d'installation.
+        Le clic affiche du code au lieu d'une confirmation&nbsp;? L'étape 1 n'est pas
+        faite.
       </div>
     </div>
   </div>
 
   <div class="step">
-    <div class="n" id="n-open">3</div>
+    <div class="n">4</div>
     <div class="body">
       <h2>Ouvrir un épisode</h2>
       <p style="margin-bottom:0">
-        Le compteur monte à 100&nbsp;% en deux secondes et la lecture démarre. Si ça
-        coince, un bouton <b>Skip pubs</b> attend en bas à droite, ou
+        Le badge passe par « Vérification Cloudflare… » quelques secondes, puis le
+        compteur monte à 100&nbsp;% et la lecture démarre. Si ça coince, un bouton
+        <b>Skip pubs</b> attend en bas à droite, ou
         <kbd>Ctrl</kbd>&nbsp;+&nbsp;<kbd>Shift</kbd>&nbsp;+&nbsp;<kbd>S</kbd>.
       </p>
     </div>
   </div>
 
-  <details id="fallback">
-    <summary>Le script est installé mais rien ne se passe</summary>
-    <p>
-      Sur Chrome, un gestionnaire de scripts en Manifest V3 n'injecte rien tant que
-      l'option <b>Autoriser les scripts utilisateur</b> n'est pas activée dans
-      <code>chrome://extensions</code> → Détails de Violentmonkey. Après l'avoir
-      activée, il faut <b>recharger l'extension</b> (ou redémarrer Chrome), pas
-      seulement la page : Violentmonkey ne réenregistre ses scripts qu'au démarrage.
+  <details>
+    <summary>Rien ne se passe malgré tout</summary>
+    <p data-only="chrome">
+      Sur Chrome, c'est l'étape 2 neuf fois sur dix, et le redémarrage est la partie
+      qu'on oublie. Le témoin fiable est le bouton <b>Skip pubs</b> en bas à droite :
+      il apparaît dès que le script s'exécute, même si la suite échoue. Pas de bouton
+      = le script n'est jamais injecté, et le problème vient du gestionnaire.
     </p>
     <p>
-      Si ça résiste, voici la version sans extension. Fais apparaître la barre de
-      favoris (<kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>B</kbd>), puis glisse ce lien
-      dedans. Sur une page d'épisode, un clic dessus lance le skip.
+      Sinon, voici la version sans extension. Fais apparaître la barre de favoris
+      (<kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>B</kbd>) et glisse ce lien dedans. Sur
+      une page d'épisode, un clic dessus lance le skip.
     </p>
     <p>
-      <a class="btn" id="bookmarklet" href="#" onclick="return false"
-         draggable="true">↧ AdGate Skip</a>
+      <a class="btn" id="bookmarklet" href="#" onclick="return false" draggable="true">
+        ↧ AdGate Skip
+      </a>
     </p>
     <p style="margin-bottom:0">
-      Ça ne dépend d'aucune extension ni d'aucun réglage, et ça marche sur tous les
-      navigateurs. En contrepartie il faut cliquer le favori à chaque épisode.
+      Aucune extension, aucun réglage, tous navigateurs. En contrepartie il faut
+      cliquer le favori à chaque épisode.
     </p>
   </details>
 
@@ -207,37 +209,30 @@
       est lui aussi purement côté client.
     </p>
     <p>
-      Le script appelle donc <code>incrementSteps</code> cinq fois d'affilée et
-      neutralise <code>window.open</code> au passage, ce qui supprime aussi les
-      popunders. Aucune requête n'est envoyée aux régies.
+      Le script appelle donc <code>incrementSteps</code> cinq fois et neutralise
+      <code>window.open</code> au passage, ce qui supprime les popunders. Aucune
+      requête n'atteint les régies.
+    </p>
+    <p>
+      Le compteur n'est pas le dernier verrou : à 100&nbsp;% le serveur attend encore
+      un jeton Cloudflare Turnstile avant de livrer la vidéo. Le script l'attend donc
+      avant d'incrémenter, sinon le re-render détruit le widget et le player n'arrive
+      jamais.
     </p>
   </details>
 
   <details>
     <summary>Sans gestionnaire de scripts</summary>
     <p>
-      Une extension Manifest V3 est fournie dans le dépôt, sous <code>extension/</code>.
-      Elle se charge via <code>chrome://extensions</code> en mode développeur, ou via
+      Une extension Manifest V3 est fournie dans le dépôt, sous <code>extension/</code>,
+      chargeable via <code>chrome://extensions</code> en mode développeur ou via
       <code>about:debugging</code> sur Firefox 128+.
     </p>
     <p>
-      À savoir : une extension non signée ne peut pas s'installer automatiquement,
-      les navigateurs le bloquent volontairement. Et sur Firefox, une extension
-      temporaire disparaît à chaque redémarrage. Le userscript reste nettement plus
-      pratique au quotidien.
+      À savoir : une extension non signée ne peut pas s'installer automatiquement, les
+      navigateurs le bloquent volontairement, et Firefox décharge les extensions
+      temporaires à chaque redémarrage.
     </p>
-  </details>
-
-  <details>
-    <summary>Si ça ne marche plus</summary>
-    <ul>
-      <li>Le site change de domaine régulièrement. Il faut alors mettre à jour les
-        lignes <code>@match</code> du script.</li>
-      <li>Le compteur se bloque&nbsp;? Rafraîchir la page le remet à zéro côté serveur,
-        puis relancer avec le bouton.</li>
-      <li>La console du navigateur affiche chaque étape sous le préfixe
-        <code>[adgate]</code>.</li>
-    </ul>
   </details>
 
   <footer>
@@ -246,69 +241,79 @@
 </main>
 
 <script>
-  // Adapte le lien de l'étape 1 au navigateur, le store n'est pas le même.
-  (function () {
-    var ua = navigator.userAgent;
-    var link = document.getElementById('mgr-link');
-    var alt = document.getElementById('mgr-alt');
+(function () {
+  var STORES = {
+    chrome: 'https://chromewebstore.google.com/detail/violentmonkey/jinjaccalgkegednnccohejagnlnfdag',
+    edge: 'https://microsoftedge.microsoft.com/addons/detail/violentmonkey/eeagobfjdenkkddmbclomhiblgggliao',
+    firefox: 'https://addons.mozilla.org/firefox/addon/violentmonkey/'
+  };
 
-    var stores = {
-      firefox: ['https://addons.mozilla.org/firefox/addon/violentmonkey/', 'Firefox'],
-      chrome: ['https://chromewebstore.google.com/detail/violentmonkey/jinjaccalgkegednnccohejagnlnfdag', 'Chrome'],
-      edge: ['https://microsoftedge.microsoft.com/addons/detail/violentmonkey/eeagobfjdenkkddmbclomhiblgggliao', 'Edge'],
-      safari: ['https://apps.apple.com/app/userscripts/id1463298887', 'Safari']
-    };
+  var ua = navigator.userAgent;
+  var isEdge = /Edg\//.test(ua);
+  var detected = /Firefox\//.test(ua) ? 'firefox'
+               : (/Chrome\/|Chromium\//.test(ua) ? 'chrome' : null);
 
-    var key = /Firefox\//.test(ua) ? 'firefox'
-            : /Edg\//.test(ua) ? 'edge'
-            : /Chrome\/|Chromium\//.test(ua) ? 'chrome'
-            : /Safari\//.test(ua) ? 'safari'
-            : null;
+  var link = document.getElementById('mgr-link');
+  var note = document.getElementById('picker-note');
+  var tabs = [].slice.call(document.querySelectorAll('.picker button'));
 
-    if (!key) return;
+  function apply(browser) {
+    tabs.forEach(function (t) {
+      t.setAttribute('aria-selected', String(t.dataset.browser === browser));
+    });
 
-    link.href = stores[key][0];
+    // montre ou cache tout ce qui est propre à un navigateur
+    [].forEach.call(document.querySelectorAll('[data-only]'), function (el) {
+      el.hidden = el.dataset.only !== browser;
+    });
 
-    if (key === 'safari') {
-      link.textContent = 'Installer Userscripts';
-      document.getElementById('mgr-desc').textContent =
-        "Safari n'accepte pas Violentmonkey. L'app Userscripts, gratuite sur le "
-        + "Mac App Store, fait la même chose.";
+    // renumérote les étapes réellement visibles
+    var n = 1;
+    [].forEach.call(document.querySelectorAll('.step'), function (s) {
+      if (!s.hidden) s.querySelector('.n').textContent = n++;
+    });
+
+    if (browser === 'firefox') {
+      link.href = STORES.firefox;
+      link.textContent = 'Installer Violentmonkey pour Firefox';
     } else {
-      link.textContent = 'Installer Violentmonkey pour ' + stores[key][1];
+      link.href = isEdge ? STORES.edge : STORES.chrome;
+      link.textContent = 'Installer Violentmonkey pour ' + (isEdge ? 'Edge' : 'Chrome');
+      document.getElementById('ext-url').textContent =
+        (isEdge ? 'edge' : 'chrome') + '://extensions/?id=' +
+        (isEdge ? STORES.edge : STORES.chrome).split('/').pop();
     }
 
-    alt.innerHTML = 'Autres navigateurs : <a href="https://violentmonkey.github.io/get-it/"'
-      + ' target="_blank" rel="noopener">violentmonkey.github.io</a>';
+    note.textContent = browser === detected
+      ? 'Navigateur détecté. Change si tu installes pour un autre.'
+      : 'Instructions pour ' + (browser === 'firefox' ? 'Firefox' : 'Chrome') +
+        ', quel que soit le navigateur que tu utilises maintenant.';
 
-    // Seul Chrome (et ses dérivés) exige d'autoriser les scripts utilisateur.
-    // Firefox n'a pas ce verrou, on ne montre pas l'étape inutilement.
-    if (key === 'chrome' || key === 'edge') {
-      var scheme = key === 'edge' ? 'edge' : 'chrome';
-      var id = stores[key][0].split('/').pop();
-      var url = scheme + '://extensions/?id=' + id;
+    try { history.replaceState(null, '', '#' + browser); } catch (e) {}
+  }
 
-      document.getElementById('ext-url').textContent = url;
-      document.getElementById('toggle-step').hidden = false;
-      document.getElementById('n-install').textContent = '3';
-      document.getElementById('n-open').textContent = '4';
+  tabs.forEach(function (t) {
+    t.addEventListener('click', function () { apply(t.dataset.browser); });
+  });
 
-      var copy = document.getElementById('copy-url');
-      copy.addEventListener('click', function () {
-        navigator.clipboard.writeText(url).then(function () {
-          copy.textContent = 'Copié';
-          setTimeout(function () { copy.textContent = 'Copier'; }, 2000);
-        }, function () {
-          // clipboard refusé (page non sécurisée) : on sélectionne le texte
-          var r = document.createRange();
-          r.selectNode(document.getElementById('ext-url'));
-          getSelection().removeAllRanges();
-          getSelection().addRange(r);
-          copy.textContent = 'Ctrl+C';
-        });
-      });
-    }
-  })();
+  var fromHash = location.hash.replace('#', '');
+  apply(fromHash === 'firefox' || fromHash === 'chrome' ? fromHash : (detected || 'chrome'));
+
+  var copy = document.getElementById('copy-url');
+  copy.addEventListener('click', function () {
+    var url = document.getElementById('ext-url').textContent;
+    navigator.clipboard.writeText(url).then(function () {
+      copy.textContent = 'Copié';
+      setTimeout(function () { copy.textContent = 'Copier'; }, 2000);
+    }, function () {
+      var r = document.createRange();
+      r.selectNode(document.getElementById('ext-url'));
+      getSelection().removeAllRanges();
+      getSelection().addRange(r);
+      copy.textContent = 'Ctrl+C';
+    });
+  });
+})();
 </script>
 <script src="bookmarklet.js"></script>
 </body>
