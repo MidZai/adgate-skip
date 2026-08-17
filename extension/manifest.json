@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "AdGate Skip",
+  "version": "1.0.0",
+  "description": "Passe le compteur de pubs du lecteur et bloque les popunders.",
+  "homepage_url": "https://github.com/MidZai/adgate-skip",
+  "content_scripts": [
+    {
+      "matches": [
+        "https://senpai-stream.bond/*",
+        "https://*.senpai-stream.bond/*"
+      ],
+      "js": ["core.js"],
+      "run_at": "document_start",
+      "world": "MAIN",
+      "all_frames": false
+    }
+  ],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "adgate-skip@midzai.github.io",
+      "strict_min_version": "128.0"
+    }
+  }
+}
