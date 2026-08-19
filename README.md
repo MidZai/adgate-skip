@@ -5,8 +5,9 @@ Le lecteur impose cinq pubs avant de démarrer une vidéo. Chaque clic sur
 Ce script remplit le compteur tout seul, sans ouvrir la moindre pub, et
 neutralise les popunders au passage.
 
-Il s'active sur **senpai-stream.makeup**, ses sous-domaines, et l'ancienne
-adresse `senpai-stream.bond` tant qu'elle redirige.
+Il s'active sur **senpai-stream.*** — n'importe quel TLD (`.makeup`, `.bond`,
+`.com`, …) et n'importe quel sous-domaine. Le site changeant d'extension
+régulièrement, il n'y a plus rien à modifier quand il déménage.
 
 **[→ Page d'installation](https://midzai.github.io/adgate-skip/)**
 
@@ -50,6 +51,13 @@ Le dossier `extension/` est une extension Manifest V3 utilisable telle quelle :
   « Charger l'extension non empaquetée », choisir `extension/`
 - Firefox 128+ : `about:debugging#/runtime/this-firefox`, « Charger un module
   temporaire », choisir `extension/manifest.json`
+
+Le navigateur annoncera que l'extension peut « lire et modifier vos données sur
+tous les sites ». C'est la contrepartie du TLD variable : un match pattern MV3
+n'accepte pas de joker sur l'extension de domaine, l'extension doit donc matcher
+large et filtrer elle-même. Concrètement `core.js` sort immédiatement si le
+hostname n'est pas `senpai-stream.*`, avant de toucher à quoi que ce soit. Le
+userscript, lui, n'a pas ce problème : son `@include` accepte une regex.
 
 Une extension non signée ne peut pas s'installer automatiquement, les navigateurs
 le bloquent volontairement. Et Firefox décharge les extensions temporaires à chaque
@@ -132,6 +140,17 @@ docs/index.html          page d'installation (GitHub Pages)
 ./build.sh
 ```
 
+Le ciblage du site vit à deux endroits, pour deux raisons différentes :
+
+- `build.sh` pose un `@include` regex sur le userscript. Il ne faut **pas** y
+  rajouter de `@match` : Violentmonkey ignore les `@include` dès qu'un `@match`
+  est présent, ce qui restreindrait le script aux seuls domaines listés.
+- `src/core.js` teste `location.hostname` (`onSite`), ce qui est le vrai filtre
+  pour l'extension puisque son manifest matche `*://*/*`.
+
+Le bookmarklet échappe au filtre : `build.sh` lui préfixe `window.__adgateForce`,
+puisqu'un clic sur un favori est déjà une intention explicite.
+
 Le script doit tourner dans le contexte de la page, pas dans le monde isolé d'un
 content script, pour atteindre `window.Livewire`. D'où `world: "MAIN"` côté
 extension et `@grant none` côté userscript.
@@ -145,11 +164,10 @@ le userscript en hérite.
 
 ## Quand ça casse
 
-Le site change de domaine régulièrement. Il faut alors ajouter le nouveau domaine
-aux `@match` dans `build.sh` et aux `matches` dans `extension/manifest.json`, bumper
-la version dans le manifest, puis relancer `./build.sh`. Garder l'ancien domaine dans
-la liste tant qu'il redirige. Le bump de version est ce qui pousse la mise à jour aux
-installations existantes via `@updateURL`, sans lui elles restent sur l'ancien `@match`.
+Un simple changement de TLD (`.bond` → `.makeup` → …) ne casse plus rien : le nom
+`senpai-stream` est le seul élément codé en dur. En revanche si le site change de
+**nom**, il faut éditer deux endroits, la regex `@include` dans `build.sh` et le
+`onSite` en tête de `src/core.js`, puis bumper la version du manifest et rebuild.
 
 La console logue chaque étape sous `[adgate]`. Un « composant introuvable »
 signifie que le site a changé de framework ou renommé ses propriétés.

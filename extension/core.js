@@ -10,6 +10,13 @@
   // passé. Sans ça le script repart en boucle dedans.
   if (window.top !== window.self) return;
 
+  // Le site garde son nom et change de TLD (.bond, .makeup, ...). Les match
+  // patterns MV3 n'acceptent pas de joker sur le TLD, donc l'extension matche
+  // large et le filtrage se fait ici, en un seul endroit. Le bookmarklet, lui,
+  // est un geste explicite : il force l'exécution et n'est jamais filtré.
+  const onSite = /(^|\.)senpai-stream\.[^.]+$/i.test(location.hostname);
+  if (!onSite && !window.__adgateForce) return;
+
   // Déjà chargé : on relance au lieu de sortir, pour que le bookmarklet reste
   // utile au deuxième clic.
   if (window.__adgateSkip) { window.__adgateSkip('relance'); return; }

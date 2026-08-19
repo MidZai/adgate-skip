@@ -1,17 +1,14 @@
 // ==UserScript==
 // @name         AdGate Skip
 // @namespace    https://github.com/MidZai/adgate-skip
-// @version      1.1.1
+// @version      1.2.0
 // @description  Passe le compteur de pubs du lecteur et bloque les popunders.
 // @author       MidZai/adgate-skip
 // @homepageURL  https://github.com/MidZai/adgate-skip
 // @supportURL   https://github.com/MidZai/adgate-skip/issues
 // @downloadURL  https://raw.githubusercontent.com/MidZai/adgate-skip/main/adgate-skip.user.js
 // @updateURL    https://raw.githubusercontent.com/MidZai/adgate-skip/main/adgate-skip.user.js
-// @match        *://senpai-stream.makeup/*
-// @match        *://*.senpai-stream.makeup/*
-// @match        *://senpai-stream.bond/*
-// @match        *://*.senpai-stream.bond/*
+// @include      /^https?:\/\/([^\/]+\.)?senpai-stream\.[^.\/:]+[:\/]/
 // @run-at       document-start
 // @grant        none
 // @noframes
@@ -28,6 +25,13 @@
   // Le player est réinjecté dans une iframe de même origine une fois le gate
   // passé. Sans ça le script repart en boucle dedans.
   if (window.top !== window.self) return;
+
+  // Le site garde son nom et change de TLD (.bond, .makeup, ...). Les match
+  // patterns MV3 n'acceptent pas de joker sur le TLD, donc l'extension matche
+  // large et le filtrage se fait ici, en un seul endroit. Le bookmarklet, lui,
+  // est un geste explicite : il force l'exécution et n'est jamais filtré.
+  const onSite = /(^|\.)senpai-stream\.[^.]+$/i.test(location.hostname);
+  if (!onSite && !window.__adgateForce) return;
 
   // Déjà chargé : on relance au lieu de sortir, pour que le bookmarklet reste
   // utile au deuxième clic.

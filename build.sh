@@ -20,10 +20,7 @@ VERSION=$(sed -n 's/.*"version": *"\([^"]*\)".*/\1/p' extension/manifest.json)
 // @supportURL   https://github.com/$REPO/issues
 // @downloadURL  $RAW
 // @updateURL    $RAW
-// @match        *://senpai-stream.makeup/*
-// @match        *://*.senpai-stream.makeup/*
-// @match        *://senpai-stream.bond/*
-// @match        *://*.senpai-stream.bond/*
+// @include      /^https?:\/\/([^\/]+\.)?senpai-stream\.[^.\/:]+[:\/]/
 // @run-at       document-start
 // @grant        none
 // @noframes
@@ -41,7 +38,8 @@ cp src/core.js extension/core.js
 node -e '
 const fs = require("fs");
 const code = fs.readFileSync("src/core.js", "utf8");
-const url = "javascript:" + encodeURIComponent(code + "\nvoid 0;");
+const url = "javascript:" + encodeURIComponent(
+  "window.__adgateForce=1;\n" + code + "\nvoid 0;");
 fs.writeFileSync("docs/bookmarklet.js",
   "// généré par build.sh, ne pas éditer\n" +
   "document.getElementById(\"bookmarklet\").href = " + JSON.stringify(url) + ";\n");
