@@ -20,10 +20,10 @@ VERSION=$(sed -n 's/.*"version": *"\([^"]*\)".*/\1/p' extension/manifest.json)
 // @supportURL   https://github.com/$REPO/issues
 // @downloadURL  $RAW
 // @updateURL    $RAW
-// @match        https://senpai-stream.makeup/*
-// @match        https://*.senpai-stream.makeup/*
-// @match        https://senpai-stream.bond/*
-// @match        https://*.senpai-stream.bond/*
+// @match        *://senpai-stream.makeup/*
+// @match        *://*.senpai-stream.makeup/*
+// @match        *://senpai-stream.bond/*
+// @match        *://*.senpai-stream.bond/*
 // @run-at       document-start
 // @grant        none
 // @noframes

@@ -5,6 +5,9 @@ Le lecteur impose cinq pubs avant de démarrer une vidéo. Chaque clic sur
 Ce script remplit le compteur tout seul, sans ouvrir la moindre pub, et
 neutralise les popunders au passage.
 
+Il s'active sur **senpai-stream.makeup**, ses sous-domaines, et l'ancienne
+adresse `senpai-stream.bond` tant qu'elle redirige.
+
 **[→ Page d'installation](https://midzai.github.io/adgate-skip/)**
 
 ## Installation
@@ -120,6 +123,7 @@ laisse croire que le player est monté. Il faut vérifier les dimensions.
 ```
 src/core.js              source
 build.sh                 → adgate-skip.user.js + extension/core.js
+                           + docs/bookmarklet.js
 extension/manifest.json  MV3, world "MAIN", run_at document_start
 docs/index.html          page d'installation (GitHub Pages)
 ```
@@ -141,8 +145,11 @@ le userscript en hérite.
 
 ## Quand ça casse
 
-Le site change de domaine régulièrement. Il faut alors mettre à jour les `@match`
-dans `build.sh` et les `matches` dans `extension/manifest.json`, puis rebuild.
+Le site change de domaine régulièrement. Il faut alors ajouter le nouveau domaine
+aux `@match` dans `build.sh` et aux `matches` dans `extension/manifest.json`, bumper
+la version dans le manifest, puis relancer `./build.sh`. Garder l'ancien domaine dans
+la liste tant qu'il redirige. Le bump de version est ce qui pousse la mise à jour aux
+installations existantes via `@updateURL`, sans lui elles restent sur l'ancien `@match`.
 
 La console logue chaque étape sous `[adgate]`. Un « composant introuvable »
 signifie que le site a changé de framework ou renommé ses propriétés.

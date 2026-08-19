@@ -1,17 +1,17 @@
 // ==UserScript==
 // @name         AdGate Skip
 // @namespace    https://github.com/MidZai/adgate-skip
-// @version      1.1.0
+// @version      1.1.1
 // @description  Passe le compteur de pubs du lecteur et bloque les popunders.
 // @author       MidZai/adgate-skip
 // @homepageURL  https://github.com/MidZai/adgate-skip
 // @supportURL   https://github.com/MidZai/adgate-skip/issues
 // @downloadURL  https://raw.githubusercontent.com/MidZai/adgate-skip/main/adgate-skip.user.js
 // @updateURL    https://raw.githubusercontent.com/MidZai/adgate-skip/main/adgate-skip.user.js
-// @match        https://senpai-stream.makeup/*
-// @match        https://*.senpai-stream.makeup/*
-// @match        https://senpai-stream.bond/*
-// @match        https://*.senpai-stream.bond/*
+// @match        *://senpai-stream.makeup/*
+// @match        *://*.senpai-stream.makeup/*
+// @match        *://senpai-stream.bond/*
+// @match        *://*.senpai-stream.bond/*
 // @run-at       document-start
 // @grant        none
 // @noframes
