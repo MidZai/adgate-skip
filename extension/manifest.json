@@ -1,12 +1,14 @@
 {
   "manifest_version": 3,
   "name": "AdGate Skip",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Passe le compteur de pubs du lecteur et bloque les popunders.",
   "homepage_url": "https://github.com/MidZai/adgate-skip",
   "content_scripts": [
     {
       "matches": [
+        "https://senpai-stream.makeup/*",
+        "https://*.senpai-stream.makeup/*",
         "https://senpai-stream.bond/*",
         "https://*.senpai-stream.bond/*"
       ],
